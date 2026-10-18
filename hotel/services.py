@@ -18,7 +18,11 @@ def find_booking_conflicts(
     """
     overlapping = Booking.objects.filter(
         room=room,
-        status=Booking.Status.ACTIVE,
+        status__in=[
+            Booking.Status.TENTATIVE,
+            Booking.Status.CONFIRMED,
+            Booking.Status.CHECKED_IN,
+        ],
         check_in__lt=check_out,
         check_out__gt=check_in,
     )

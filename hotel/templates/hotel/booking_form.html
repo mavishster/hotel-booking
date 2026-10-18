@@ -268,9 +268,26 @@
                 </div>
 
                 <div class="field">
-                    <label for="{{ form.free_children_count.id_for_label }}">Free children (under 10)</label>
-                    {{ form.free_children_count }}
-                    {% for error in form.free_children_count.errors %}
+                    <label for="{{ form.children_count.id_for_label }}">
+                        Количество детей
+                    </label>
+                    {{ form.children_count }}
+                    {% for error in form.children_count.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="field full">
+                    <label for="{{ form.children_ages.id_for_label }}">
+                        Возраст каждого ребёнка
+                    </label>
+                    {{ form.children_ages }}
+                    <p class="help">
+                        Укажите возраст каждого ребёнка в формате JSON, например [4, 7].
+                        Первый ребёнок младше 7 лет размещается бесплатно;
+                        остальные дети до 12 лет включительно оплачиваются по тарифу 50%.
+                    </p>
+                    {% for error in form.children_ages.errors %}
                     <div class="errors">{{ error }}</div>
                     {% endfor %}
                 </div>

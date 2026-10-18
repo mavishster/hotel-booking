@@ -25,15 +25,15 @@ def dashboard(request):
 
     context = {
         "active_bookings": Booking.objects.filter(
-            status=Booking.Status.ACTIVE,
+            status=Booking.Status.CONFIRMED,
         ).count(),
         "active_rooms": Room.objects.filter(is_active=True).count(),
         "arrivals_today": Booking.objects.filter(
-            status=Booking.Status.ACTIVE,
+            status=Booking.Status.CONFIRMED,
             check_in=today,
         ).count(),
         "departures_today": Booking.objects.filter(
-            status=Booking.Status.ACTIVE,
+            status=Booking.Status.CONFIRMED,
             check_out=today,
         ).count(),
     }

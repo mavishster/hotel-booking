@@ -1,6 +1,6 @@
 
 from django.db import models
-
+from django.conf import settings
 
 class RoomType(models.Model):
     name = models.CharField(max_length=100)
@@ -210,14 +210,27 @@ class RateRule(models.Model):
         return f"{self.name}: {self.price}"
 
 
+
 class Booking(models.Model):
     class BookingMode(models.TextChoices):
         BED = "BED", "Отдельные кровати"
         ROOM = "ROOM", "Glamping целиком"
 
     class Status(models.TextChoices):
-        ACTIVE = "ACTIVE", "Активно"
+        TENTATIVE = "TENTATIVE", "Предварительное"
+        CONFIRMED = "CONFIRMED", "Подтверждено"
+        CHECKED_IN = "CHECKED_IN", "Гость заселился"
+        CHECKED_OUT = "CHECKED_OUT", "Гость выехал"
         CANCELLED = "CANCELLED", "Отменено"
+        NO_SHOW = "NO_SHOW", "Неявка"
+
+    class BookingSource(models.TextChoices):
+        PHONE = "PHONE", "Телефон"
+        WALK_IN = "WALK_IN", "Лично"
+        WHATSAPP = "WHATSAPP", "WhatsApp"
+        WEBSITE = "WEBSITE", "Сайт"
+        BOOKING_COM = "BOOKING_COM", "Booking.com"
+        OTHER = "OTHER", "Другое"
 
     room = models.ForeignKey(
         Room,
@@ -243,31 +256,63 @@ class Booking(models.Model):
         verbose_name="Количество взрослых",
     )
 
-    free_children_count = models.PositiveSmallIntegerField(
-        default=0,
-        verbose_name="Бесплатные дети до 10 лет",
-    )
+    # Новые поля о детях.
+    children_count = models.PositiveSmallIntegerField(default=0)
+    children_ages = models.JSONField(default=list, blank=True)
 
     guest_name = models.CharField(
         max_length=150,
         blank=True,
         null=True,
     )
-
     guest_phone = models.CharField(
         max_length=30,
         blank=True,
         null=True,
     )
+    guest_email = models.EmailField(blank=True)
 
-    status = models.CharField(
-        max_length=10,
-        choices=Status.choices,
-        default=Status.ACTIVE,
+    booking_reference = models.CharField(
+        max_length=30,
+        unique=True,
+        null=True,
+        blank=True,
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    booking_source = models.CharField(
+        max_length=12,
+        choices=BookingSource.choices,
+        default=BookingSource.OTHER,
+    )
 
+    special_requests = models.TextField(blank=True)
+    internal_notes = models.TextField(blank=True)
+
+    total_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    price_overridden = models.BooleanField(default=False)
+
+    status = models.CharField(
+        max_length=12,
+        choices=Status.choices,
+        default=Status.CONFIRMED,
+    )
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_bookings",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    cancelled_at = models.DateTimeField(null=True, blank=True)
+    cancellation_reason = models.TextField(blank=True)
 
     def clean(self):
         from django.core.exceptions import ValidationError
@@ -285,27 +330,37 @@ class Booking(models.Model):
                 "Количество взрослых должно быть не меньше одного."
             )
 
-        if self.free_children_count < 0:
-            errors["free_children_count"] = (
-                "Количество детей не может быть отрицательным."
-            )
-
         if self.room_id and self.booking_mode == self.BookingMode.ROOM:
-            total_guests = (
-                self.adults_count + self.free_children_count
-            )
+            total_guests = self.adults_count + self.children_count
 
             if total_guests > self.room.room_type.capacity:
                 errors["adults_count"] = (
                     "Общее количество гостей превышает вместимость помещения."
                 )
 
+        if not isinstance(self.children_ages, list):
+            errors["children_ages"] = (
+                "Возраст детей должен быть списком."
+            )
+        elif any(
+            type(age) is not int or age < 0 or age > 17
+            for age in self.children_ages
+        ):
+            errors["children_ages"] = (
+                "Возраст каждого ребёнка должен быть от 0 до 17 лет."
+            )
+        elif len(self.children_ages) != self.children_count:
+            errors["children_ages"] = (
+                "Количество возрастов должно совпадать "
+                "с количеством детей."
+            )
+     
         if errors:
             raise ValidationError(errors)
 
     @property
     def guest_count(self):
-        return self.adults_count + self.free_children_count
+        return self.adults_count + self.children_count
 
     def __str__(self):
         return (

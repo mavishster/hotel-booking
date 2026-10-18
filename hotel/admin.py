@@ -15,6 +15,19 @@ admin.site.register(RateRule)
 
 
 class BookingAdminForm(forms.ModelForm):
+    children_count = forms.IntegerField(
+        min_value=0,
+        required=False,
+        initial=0,
+        label="Количество детей",
+    )
+
+    booking_source = forms.ChoiceField(
+        choices=Booking.BookingSource.choices,
+        required=False,
+        initial=Booking.BookingSource.OTHER,
+        label="Источник бронирования",
+    )
     class Meta:
         model = Booking
         fields = "__all__"
@@ -44,6 +57,12 @@ class BookingAdminForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+
+        if cleaned_data.get("children_count") is None:
+            cleaned_data["children_count"] = 0
+
+        if not cleaned_data.get("booking_source"):
+            cleaned_data["booking_source"] = Booking.BookingSource.OTHER
 
         room = cleaned_data.get("room")
         booking_mode = cleaned_data.get("booking_mode")

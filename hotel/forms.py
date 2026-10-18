@@ -12,19 +12,29 @@ class BookingForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         label="Beds",
     )
+    children_count = forms.IntegerField(
+        min_value=0,
+        initial=0,
+        required=False,
+        label="Количество детей",
+    )
 
     class Meta:
         model = Booking
         fields = [
             "guest_name",
             "guest_phone",
+            "guest_email",
             "room",
             "booking_mode",
             "beds",
             "check_in",
             "check_out",
             "adults_count",
-            "free_children_count",
+            "children_count",
+            "children_ages",
+            "booking_source",
+            "special_requests",
         ]
         widgets = {
             "check_in": forms.DateInput(attrs={"type": "date"}),
@@ -32,6 +42,7 @@ class BookingForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        
         super().__init__(*args, **kwargs)
 
         self.fields["room"].queryset = Room.objects.filter(
