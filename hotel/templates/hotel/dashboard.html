@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard | Hotel Management</title>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --surface: #ffffff;
+            --text: #182230;
+            --muted: #667085;
+            --border: #e7eaf0;
+            --primary: #4263eb;
+            --sidebar: #172033;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .layout {
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: 240px;
+            padding: 28px 18px;
+            background: var(--sidebar);
+            color: white;
+        }
+
+        .brand {
+            padding: 0 12px 32px;
+            font-size: 19px;
+            font-weight: 700;
+        }
+
+        .nav-label {
+            padding: 0 12px;
+            margin-bottom: 10px;
+            color: #9ba7bd;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        .nav-link {
+            display: block;
+            margin: 5px 0;
+            padding: 12px;
+            border-radius: 8px;
+            color: #d5dbea;
+            text-decoration: none;
+        }
+
+        .nav-link.active {
+            background: #34456b;
+            color: white;
+        }
+
+        .nav-link:hover {
+            background: #283653;
+        }
+
+        .content {
+            margin-left: 240px;
+        }
+
+        .topbar {
+            min-height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 32px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topbar small {
+            color: var(--muted);
+        }
+
+        .user-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #e8edff;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .logout {
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        main {
+            max-width: 1250px;
+            margin: auto;
+            padding: 32px;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            letter-spacing: -0.7px;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .date-label {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            min-width: 0;
+            padding: 22px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 3px 12px #18223005;
+        }
+
+        .card-label {
+            margin: 0 0 18px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .card-value {
+            margin: 0;
+            font-size: 34px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .card-note {
+            margin: 12px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .card-indicator {
+            width: 36px;
+            height: 4px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            background: var(--primary);
+        }
+
+        .card:nth-child(2) .card-indicator {
+            background: #0e9f6e;
+        }
+
+        .card:nth-child(3) .card-indicator {
+            background: #e59a18;
+        }
+
+        .card:nth-child(4) .card-indicator {
+            background: #8b5cf6;
+        }
+
+        .section {
+            margin-top: 28px;
+        }
+
+        .section h2 {
+            margin: 0 0 14px;
+            font-size: 18px;
+        }
+
+        .quick-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .quick-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: white;
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .quick-link:hover {
+            background: #f0f3ff;
+        }
+
+        @media (max-width: 1100px) {
+            .stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            main {
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .sidebar {
+                position: static;
+                width: auto;
+                padding: 16px;
+            }
+
+            .brand {
+                padding: 0 4px 14px;
+            }
+
+            .nav-label {
+                display: none;
+            }
+
+            .nav-link {
+                display: inline-block;
+                margin: 0 4px 0 0;
+                padding: 9px 11px;
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            .topbar {
+                min-height: 64px;
+                padding: 12px 16px;
+            }
+
+            main {
+                padding: 22px 16px;
+            }
+
+            .page-heading {
+                align-items: start;
+                flex-direction: column;
+            }
+
+            .stats {
+                gap: 12px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .card-value {
+                font-size: 28px;
+            }
+
+            .user-name {
+                display: none;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">Hotel Management</div>
+
+            <div class="nav-label">Workspace</div>
+            <nav>
+                <a class="nav-link active" href="{% url 'dashboard' %}">Dashboard</a>
+                <a class="nav-link" href="{% url 'admin:index' %}">Administration</a>
+            </nav>
+        </aside>
+
+        <div class="content">
+            <header class="topbar">
+                <div>
+                    <strong>Overview</strong><br>
+                    <small>Hotel operations</small>
+                </div>
+
+                <div class="user-area">
+                    <div class="avatar">{{ request.user.username|first|upper }}</div>
+                    <strong class="user-name">{{ request.user.username }}</strong>
+
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button class="logout" type="submit">Log out</button>
+                    </form>
+                </div>
+            </header>
+
+            <main>
+                <div class="page-heading">
+                    <div>
+                        <h1>Dashboard</h1>
+                        <p class="subtitle">Here's what's happening at your hotel.</p>
+                    </div>
+                    <div class="date-label">{% now "j F Y" %}</div>
+                </div>
+
+                <section class="stats">
+                    <article class="card">
+                        <div class="card-indicator"></div>
+                        <p class="card-label">Active bookings</p>
+                        <p class="card-value">{{ active_bookings }}</p>
+                        <p class="card-note">Current active reservations</p>
+                    </article>
+
+                    <article class="card">
+                        <div class="card-indicator"></div>
+                        <p class="card-label">Active rooms</p>
+                        <p class="card-value">{{ active_rooms }}</p>
+                        <p class="card-note">Rooms enabled for use</p>
+                    </article>
+
+                    <article class="card">
+                        <div class="card-indicator"></div>
+                        <p class="card-label">Arrivals today</p>
+                        <p class="card-value">{{ arrivals_today }}</p>
+                        <p class="card-note">Bookings starting today</p>
+                    </article>
+
+                    <article class="card">
+                        <div class="card-indicator"></div>
+                        <p class="card-label">Departures today</p>
+                        <p class="card-value">{{ departures_today }}</p>
+                        <p class="card-note">Bookings ending today</p>
+                    </article>
+                </section>
+
+                <section class="section">
+                    <h2>Quick access</h2>
+                    <div class="quick-links">
+                        <a class="quick-link" href="{% url 'admin:index' %}">Manage hotel data</a>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+</body>
+
+</html>

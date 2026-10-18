@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Booking</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f4f6f9;
+            color: #1f2937;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px 16px 40px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgb(0 0 0 / 3%);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .field {
+            min-width: 0;
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        label,
+        legend {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        input,
+        select {
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #fff;
+            color: #111827;
+            font: inherit;
+        }
+
+        fieldset {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px;
+            margin: 0;
+        }
+
+        .bed-options {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .bed-options label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            margin: 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-weight: 400;
+        }
+
+        .bed-options input {
+            width: 18px;
+            min-height: 18px;
+            margin: 0;
+        }
+
+        .help {
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .errors {
+            color: #b91c1c;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        .error-summary {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .primary {
+            border: 0;
+            background: #2563eb;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 18px 12px 30px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .full {
+                grid-column: auto;
+            }
+
+            .bed-options {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .topbar {
+                align-items: flex-start;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <div class="topbar">
+            <div>
+                <h1>New booking</h1>
+                <p class="subtitle">Create a room or individual-bed reservation.</p>
+            </div>
+            <a class="button" href="{% url 'booking_list' %}">Back</a>
+        </div>
+
+        <form method="post" class="card">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="error-summary">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <div class="grid">
+                <div class="field">
+                    <label for="{{ form.guest_name.id_for_label }}">Guest name</label>
+                    {{ form.guest_name }}
+                    {% for error in form.guest_name.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.guest_phone.id_for_label }}">Phone</label>
+                    {{ form.guest_phone }}
+                    {% for error in form.guest_phone.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.room.id_for_label }}">Room</label>
+                    {{ form.room }}
+                    {% for error in form.room.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.booking_mode.id_for_label }}">Booking type</label>
+                    {{ form.booking_mode }}
+                    {% for error in form.booking_mode.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.check_in.id_for_label }}">Check-in</label>
+                    {{ form.check_in }}
+                    {% for error in form.check_in.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.check_out.id_for_label }}">Check-out</label>
+                    {{ form.check_out }}
+                    {% for error in form.check_out.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.adults_count.id_for_label }}">Adults</label>
+                    {{ form.adults_count }}
+                    {% for error in form.adults_count.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.free_children_count.id_for_label }}">Free children (under 10)</label>
+                    {{ form.free_children_count }}
+                    {% for error in form.free_children_count.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <fieldset class="field full" id="beds-field">
+                    <legend>Select beds</legend>
+                    <div class="bed-options">
+                        {% for checkbox in form.beds %}
+                        <label>
+                            {{ checkbox.tag }}
+                            {{ checkbox.choice_label }}
+                        </label>
+                        {% empty %}
+                        <p>No active beds available.</p>
+                        {% endfor %}
+                    </div>
+                    <p class="help">For an individual-bed booking, select one or more beds in the chosen room. For a
+                        whole-room booking, leave all beds unchecked.</p>
+                    {% for error in form.beds.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </fieldset>
+            </div>
+
+            <div class="actions">
+                <a class="button" href="{% url 'booking_list' %}">Cancel</a>
+                <button class="button primary" type="submit">Create booking</button>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        const modeField = document.getElementById("id_booking_mode");
+        const bedsField = document.getElementById("beds-field");
+
+        function updateBedsVisibility() {
+            const isBedBooking = modeField.value === "BED";
+            bedsField.hidden = !isBedBooking;
+        }
+
+        modeField.addEventListener("change", updateBedsVisibility);
+        updateBedsVisibility();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bookings | Hotel Management</title>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --surface: #fff;
+            --text: #182230;
+            --muted: #667085;
+            --border: #e7eaf0;
+            --primary: #4263eb;
+            --sidebar: #172033;
+            --green: #067647;
+            --green-bg: #ecfdf3;
+            --red: #b42318;
+            --red-bg: #fef3f2;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: 240px;
+            padding: 28px 18px;
+            background: var(--sidebar);
+            color: white;
+        }
+
+        .brand {
+            padding: 0 12px 32px;
+            font-size: 19px;
+            font-weight: 700;
+        }
+
+        .nav-label {
+            padding: 0 12px;
+            margin-bottom: 10px;
+            color: #9ba7bd;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        .nav-link {
+            display: block;
+            margin: 5px 0;
+            padding: 12px;
+            border-radius: 8px;
+            color: #d5dbea;
+            text-decoration: none;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #34456b;
+            color: white;
+        }
+
+        .content {
+            margin-left: 240px;
+        }
+
+        .topbar {
+            min-height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 32px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topbar small {
+            color: var(--muted);
+        }
+
+        .user-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logout {
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        main {
+            max-width: 1400px;
+            margin: auto;
+            padding: 32px;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            letter-spacing: -0.7px;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 16px;
+            border: 0;
+            border-radius: 9px;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .panel {
+            overflow: hidden;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 3px 12px #18223005;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-header h2 {
+            margin: 0;
+            font-size: 17px;
+        }
+
+        .count {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th,
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: #fafbfc;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        tbody tr:hover {
+            background: #fafbff;
+        }
+
+        .guest {
+            font-weight: 600;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            color: var(--green);
+            background: var(--green-bg);
+        }
+
+        .status-cancelled {
+            color: var(--red);
+            background: var(--red-bg);
+        }
+
+        .empty {
+            padding: 56px 20px;
+            text-align: center;
+        }
+
+        .empty h3 {
+            margin: 0 0 8px;
+        }
+
+        .empty p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        @media (max-width: 650px) {
+            .sidebar {
+                position: static;
+                width: auto;
+                padding: 16px;
+            }
+
+            .brand {
+                padding: 0 4px 14px;
+            }
+
+            .nav-label {
+                display: none;
+            }
+
+            .nav-link {
+                display: inline-block;
+                margin: 0 4px 0 0;
+                padding: 9px 11px;
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            .topbar {
+                min-height: 64px;
+                padding: 12px 16px;
+            }
+
+            main {
+                padding: 22px 16px;
+            }
+
+            .page-heading {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .button {
+                width: 100%;
+            }
+
+            .panel-header {
+                padding: 18px 16px;
+            }
+
+            th,
+            td {
+                padding: 14px 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="brand">Hotel Management</div>
+        <div class="nav-label">Workspace</div>
+        <nav>
+            <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+            <a class="nav-link active" href="{% url 'booking_list' %}">Bookings</a>
+            <a class="nav-link" href="{% url 'admin:index' %}">Administration</a>
+        </nav>
+    </aside>
+
+    <div class="content">
+        <header class="topbar">
+            <div>
+                <strong>Bookings</strong><br>
+                <small>Reservation management</small>
+            </div>
+
+            <div class="user-area">
+                <strong>{{ request.user.username }}</strong>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="logout" type="submit">Log out</button>
+                </form>
+            </div>
+        </header>
+
+        <main>
+            <div class="page-heading">
+                <div>
+                    <h1>Bookings</h1>
+                    <p class="subtitle">View and track your reservations.</p>
+                </div>
+                <a class="button" href="{% url 'booking_create' %}">
+                    + New booking
+                </a>
+            </div>
+
+            <section class="panel">
+                <div class="panel-header">
+                    <h2>All reservations</h2>
+                    <span class="count">{{ bookings|length }} total</span>
+                </div>
+
+                {% if bookings %}
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Guest</th>
+                                <th>Room</th>
+                                <th>Check-in</th>
+                                <th>Check-out</th>
+                                <th>Guests</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                            <tr>
+                                <td>
+                                    <span class="guest">{{ booking.guest_name }}</span>
+                                    {% if booking.guest_phone %}
+                                    <br>
+                                    <span class="muted">{{ booking.guest_phone }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ booking.room.number }}</td>
+                                <td>{{ booking.check_in|date:"d M Y" }}</td>
+                                <td>{{ booking.check_out|date:"d M Y" }}</td>
+                                <td>
+                                    {{ booking.adults }} adults
+                                    {% if booking.children %}
+                                    , {{ booking.children }} children
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if booking.status == "ACTIVE" %}
+                                    <span class="status status-active">Active</span>
+                                    {% else %}
+                                    <span class="status status-cancelled">Cancelled</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty">
+                    <h3>No bookings yet</h3>
+                    <p>Create your first reservation to see it here.</p>
+                </div>
+                {% endif %}
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>
