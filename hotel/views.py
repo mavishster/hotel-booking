@@ -10,6 +10,8 @@ from django.shortcuts import redirect, render
 
 from .forms import BookingForm
 
+from .services import calculate_booking_total
+
 class StaffLoginView(LoginView):
     template_name = "hotel/login.html"
     redirect_authenticated_user = True
@@ -55,18 +57,32 @@ def booking_list(request):
     )
 
 
+
 @login_required
 def booking_create(request):
     if request.method == "POST":
         form = BookingForm(request.POST)
 
         if form.is_valid():
-            booking = form.save()
-            messages.success(
-                request,
-                f"Booking for {booking.guest_name or 'guest'} created successfully.",
-            )
-            return redirect("booking_list")
+            booking = form.save(commit=False)
+
+            try:
+                booking.total_price = calculate_booking_total(
+                    booking,
+                    beds_count=form.cleaned_data["beds"].count(),
+                )
+            except ValueError as error:
+                form.add_error(None, str(error))
+            else:
+                booking.save()
+                form.save_m2m()
+
+                messages.success(
+                    request,
+                    f"Бронирование для {booking.guest_name or 'гостя'} создано. "
+                    f"Стоимость: {booking.total_price} KGS.",
+                )
+                return redirect("booking_list")
     else:
         form = BookingForm()
 
