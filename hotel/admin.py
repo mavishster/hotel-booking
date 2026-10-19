@@ -22,6 +22,16 @@ class BookingAdminForm(forms.ModelForm):
         label="Количество детей",
     )
 
+    breakfast_count = forms.IntegerField(
+        min_value=0, required=False, initial=0
+    )
+    lunch_count = forms.IntegerField(
+        min_value=0, required=False, initial=0
+    )
+    dinner_count = forms.IntegerField(
+        min_value=0, required=False, initial=0
+    )
+
     booking_source = forms.ChoiceField(
         choices=Booking.BookingSource.choices,
         required=False,

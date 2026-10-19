@@ -7,6 +7,9 @@ class RoomType(models.Model):
     description = models.TextField(blank=True)
     capacity = models.PositiveSmallIntegerField()
     is_active = models.BooleanField(default=True)
+    breakfast = models.BooleanField(default=False)
+    lunch = models.BooleanField(default=False)
+    dinner = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -210,7 +213,6 @@ class RateRule(models.Model):
         return f"{self.name}: {self.price}"
 
 
-
 class Booking(models.Model):
     class BookingMode(models.TextChoices):
         BED = "BED", "Отдельные кровати"
@@ -287,6 +289,13 @@ class Booking(models.Model):
 
     special_requests = models.TextField(blank=True)
     internal_notes = models.TextField(blank=True)
+    breakfast_count = models.PositiveSmallIntegerField(default=0)
+    lunch_count = models.PositiveSmallIntegerField(default=0)
+    dinner_count = models.PositiveSmallIntegerField(default=0)
+
+    dietary_requirements = models.TextField(blank=True)
+    allergies = models.TextField(blank=True)
+    meal_notes = models.TextField(blank=True)
 
     total_price = models.DecimalField(
         max_digits=10,
@@ -366,4 +375,47 @@ class Booking(models.Model):
         return (
             f"{self.room.number}: "
             f"{self.check_in} — {self.check_out}"
+        )
+
+class Payment(models.Model):
+    class TransactionType(models.TextChoices):
+        PAYMENT = "PAYMENT", "Payment"
+        REFUND = "REFUND", "Refund"
+
+    class Method(models.TextChoices):
+        CASH = "CASH", "Cash"
+        CARD = "CARD", "Card"
+        BANK_TRANSFER = "BANK_TRANSFER", "Bank transfer"
+        ONLINE = "ONLINE", "Online"
+        OTHER = "OTHER", "Other"
+
+    booking = models.ForeignKey(
+        Booking,
+        on_delete=models.PROTECT,
+        related_name="payments",
+    )
+    transaction_type = models.CharField(
+        max_length=10,
+        choices=TransactionType.choices,
+        default=TransactionType.PAYMENT,
+    )
+    amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+    )
+    method = models.CharField(
+        max_length=20,
+        choices=Method.choices,
+        default=Method.CASH,
+    )
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return (
+            f"{self.get_transaction_type_display()} "
+            f"{self.amount} — {self.booking}"
         )

@@ -18,6 +18,24 @@ class BookingForm(forms.ModelForm):
         required=False,
         label="Количество детей",
     )
+    breakfast_count = forms.IntegerField(
+        min_value=0,
+        required=False,
+        initial=0,
+        label="Breakfasts needed (included)",
+    )
+    lunch_count = forms.IntegerField(
+        min_value=0,
+        required=False,
+        initial=0,
+        label="Lunches needed",
+    )
+    dinner_count = forms.IntegerField(
+        min_value=0,
+        required=False,
+        initial=0,
+        label="Dinners needed",
+    )
 
     class Meta:
         model = Booking
@@ -35,6 +53,12 @@ class BookingForm(forms.ModelForm):
             "children_ages",
             "booking_source",
             "special_requests",
+            "breakfast_count",
+            "lunch_count",
+            "dinner_count",
+            "dietary_requirements",
+            "allergies",
+            "meal_notes",
         ]
         widgets = {
             "check_in": forms.DateInput(attrs={"type": "date"}),
@@ -115,3 +139,12 @@ class BookingForm(forms.ModelForm):
                     )
 
         return cleaned_data
+
+    def clean_breakfast_count(self):
+        return self.cleaned_data.get("breakfast_count") or 0
+
+    def clean_lunch_count(self):
+        return self.cleaned_data.get("lunch_count") or 0
+
+    def clean_dinner_count(self):
+        return self.cleaned_data.get("dinner_count") or 0
