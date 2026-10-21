@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
 
 <head>
+    {% load i18n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Booking</title>
+    <title>{% if booking %}{% trans "Edit booking" %}{% else %}{% trans "New booking" %}{% endif %}</title>
     <style>
         * {
             box-sizing: border-box;
@@ -195,10 +196,10 @@
     <main class="container">
         <div class="topbar">
             <div>
-                <h1>New booking</h1>
-                <p class="subtitle">Create a room or individual-bed reservation.</p>
+                <h1>{% if booking %}{% trans "Edit booking" %}{% else %}{% trans "New booking" %}{% endif %}</h1>
+                <p class="subtitle">{% trans "Create a room or individual-bed reservation." %}</p>
             </div>
-            <a class="button" href="{% url 'booking_list' %}">Back</a>
+            <a class="button" href="{% if booking %}{% url 'booking_detail' booking.id %}{% else %}{% url 'dashboard' %}{% endif %}">{% trans "Back" %}</a>
         </div>
 
         <form method="post" class="card">
@@ -212,7 +213,7 @@
 
             <div class="grid">
                 <div class="field">
-                    <label for="{{ form.guest_name.id_for_label }}">Guest name</label>
+                    <label for="{{ form.guest_name.id_for_label }}">{% trans "Guest name" %}</label>
                     {{ form.guest_name }}
                     {% for error in form.guest_name.errors %}
                     <div class="errors">{{ error }}</div>
@@ -220,7 +221,7 @@
                 </div>
 
                 <div class="field">
-                    <label for="{{ form.guest_phone.id_for_label }}">Phone</label>
+                    <label for="{{ form.guest_phone.id_for_label }}">{% trans "Phone" %}</label>
                     {{ form.guest_phone }}
                     {% for error in form.guest_phone.errors %}
                     <div class="errors">{{ error }}</div>
@@ -228,7 +229,7 @@
                 </div>
 
                 <div class="field">
-                    <label for="{{ form.room.id_for_label }}">Room</label>
+                    <label for="{{ form.room.id_for_label }}">{% trans "Room" %}</label>
                     {{ form.room }}
                     {% for error in form.room.errors %}
                     <div class="errors">{{ error }}</div>
@@ -236,7 +237,7 @@
                 </div>
 
                 <div class="field">
-                    <label for="{{ form.booking_mode.id_for_label }}">Booking type</label>
+                    <label for="{{ form.booking_mode.id_for_label }}">{% trans "Booking type" %}</label>
                     {{ form.booking_mode }}
                     {% for error in form.booking_mode.errors %}
                     <div class="errors">{{ error }}</div>
@@ -244,7 +245,7 @@
                 </div>
 
                 <div class="field">
-                    <label for="{{ form.check_in.id_for_label }}">Check-in</label>
+                    <label for="{{ form.check_in.id_for_label }}">{% trans "Check-in" %}</label>
                     {{ form.check_in }}
                     {% for error in form.check_in.errors %}
                     <div class="errors">{{ error }}</div>
@@ -252,7 +253,7 @@
                 </div>
 
                 <div class="field">
-                    <label for="{{ form.check_out.id_for_label }}">Check-out</label>
+                    <label for="{{ form.check_out.id_for_label }}">{% trans "Check-out" %}</label>
                     {{ form.check_out }}
                     {% for error in form.check_out.errors %}
                     <div class="errors">{{ error }}</div>
@@ -260,7 +261,7 @@
                 </div>
 
                 <div class="field">
-                    <label for="{{ form.adults_count.id_for_label }}">Adults</label>
+                    <label for="{{ form.adults_count.id_for_label }}">{% trans "Adults" %}</label>
                     {{ form.adults_count }}
                     {% for error in form.adults_count.errors %}
                     <div class="errors">{{ error }}</div>
@@ -268,9 +269,7 @@
                 </div>
 
                 <div class="field">
-                    <label for="{{ form.children_count.id_for_label }}">
-                        Количество детей
-                    </label>
+                    <label for="{{ form.children_count.id_for_label }}">{% trans "Number of children" %}</label>
                     {{ form.children_count }}
                     {% for error in form.children_count.errors %}
                     <div class="errors">{{ error }}</div>
@@ -278,22 +277,78 @@
                 </div>
 
                 <div class="field full">
-                    <label for="{{ form.children_ages.id_for_label }}">
-                        Возраст каждого ребёнка
-                    </label>
+                    <label for="{{ form.children_ages.id_for_label }}">{% trans "Age of each child" %}</label>
                     {{ form.children_ages }}
                     <p class="help">
-                        Укажите возраст каждого ребёнка в формате JSON, например [4, 7].
-                        Первый ребёнок младше 7 лет размещается бесплатно;
-                        остальные дети до 12 лет включительно оплачиваются по тарифу 50%.
+                        {% blocktrans trimmed %}
+                        Enter the age of each child in JSON format, for example [4, 7].
+                        The first child under 7 years old stays free of charge;
+                        other children up to and including 12 years old are charged 50% of the rate.
+                        {% endblocktrans %}
                     </p>
                     {% for error in form.children_ages.errors %}
                     <div class="errors">{{ error }}</div>
                     {% endfor %}
                 </div>
 
+                <div class="field">
+                    <label for="{{ form.breakfast_count.id_for_label }}">
+                        {% trans "Breakfasts (included in the price)"%}</label>
+                    {{ form.breakfast_count }}
+                    {% for error in form.breakfast_count.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.lunch_count.id_for_label }}">{% trans "Lunches" %}</label>
+                    {{ form.lunch_count }}
+                    {% for error in form.lunch_count.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.dinner_count.id_for_label }}">{% trans "Dinners" %}</label>
+                    {{ form.dinner_count }}
+                    {% for error in form.dinner_count.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <fieldset class="field full">
+                    <legend>{% trans "Dietary requirements" %}</legend>
+                    <div class="bed-options">
+                        {% for checkbox in form.dietary_requirements %}
+                        <label>
+                            {{ checkbox.tag }}
+                            {{ checkbox.choice_label }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% for error in form.dietary_requirements.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </fieldset>
+
+                <div class="field full">
+                    <label for="{{ form.allergies.id_for_label }}">{% trans "Allergies" %}</label>
+                    {{ form.allergies }}
+                    {% for error in form.allergies.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="field full">
+                    <label for="{{ form.meal_notes.id_for_label }}">{% trans "Meal notes" %}</label>
+                    {{ form.meal_notes }}
+                    {% for error in form.meal_notes.errors %}
+                    <div class="errors">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
                 <fieldset class="field full" id="beds-field">
-                    <legend>Select beds</legend>
+                    <legend>{% trans "Select beds" %}</legend>
                     <div class="bed-options">
                         {% for checkbox in form.beds %}
                         <label>
@@ -301,11 +356,15 @@
                             {{ checkbox.choice_label }}
                         </label>
                         {% empty %}
-                        <p>No active beds available.</p>
+                        <p>{% trans "No active beds available." %}</p>
                         {% endfor %}
                     </div>
-                    <p class="help">For an individual-bed booking, select one or more beds in the chosen room. For a
-                        whole-room booking, leave all beds unchecked.</p>
+                    <p class="help">
+                        {% blocktrans trimmed %}
+                        For an individual-bed booking, select one or more beds in the chosen room.
+                        For a whole-room booking, leave all beds unchecked.
+                        {% endblocktrans %}
+                    </p>
                     {% for error in form.beds.errors %}
                     <div class="errors">{{ error }}</div>
                     {% endfor %}
@@ -313,8 +372,8 @@
             </div>
 
             <div class="actions">
-                <a class="button" href="{% url 'booking_list' %}">Cancel</a>
-                <button class="button primary" type="submit">Create booking</button>
+                <a class="button" href="{% if booking %}{% url 'booking_detail' booking.id %}{% else %}{% url 'dashboard' %}{% endif %}">{% trans "Cancel" %}</a>
+                <button class="button primary" type="submit">{% if booking %}{% trans "Save changes" %}{% else %}{% trans "Create booking" %}{% endif %}</button>
             </div>
         </form>
     </main>

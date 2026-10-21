@@ -1,0 +1,17 @@
+{% load i18n %}
+
+<form method="post" action="{% url 'set_language' %}" class="language-switcher">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    {% get_current_language as CURRENT_LANGUAGE %}
+
+    <button type="submit" name="language" value="ru"
+        class="language-button {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}">
+        RU
+    </button>
+
+    <button type="submit" name="language" value="en"
+        class="language-button {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}">
+        EN
+    </button>
+</form>

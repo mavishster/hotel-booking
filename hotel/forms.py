@@ -3,6 +3,7 @@ from django import forms
 
 from .models import Bed, Booking, Room
 from .services import find_booking_conflicts
+from django.utils.translation import gettext_lazy as _
 
 
 class BookingForm(forms.ModelForm):
@@ -36,6 +37,25 @@ class BookingForm(forms.ModelForm):
         initial=0,
         label="Dinners needed",
     )
+    dietary_requirements = forms.MultipleChoiceField(
+        choices=[
+            ("vegetarian", _("Vegetarian")),
+            ("vegan", _("Vegan")),
+            ("halal", _("Halal")),
+            ("gluten_free", _("Gluten-free")),
+            ("lactose_free", _("Lactose-free")),
+            ("no_pork", _("No pork")),
+            ("other", _("Other")),
+        ],
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        label=_("Dietary requirements"),
+    )
+    booking_source = forms.ChoiceField(
+        choices=Booking.BookingSource.choices,
+        required=False,
+        label="Источник бронирования",
+    )
 
     class Meta:
         model = Booking
@@ -68,6 +88,11 @@ class BookingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         
         super().__init__(*args, **kwargs)
+        self.fields["room"].empty_label = _("Select an option")
+        self.fields["booking_mode"].choices = [
+            ("", _("Select an option")),
+            *Booking.BookingMode.choices,
+        ]
 
         self.fields["room"].queryset = Room.objects.filter(
             is_active=True,

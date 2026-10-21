@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
 
 <head>
+    {% load static i18n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Bookings | Hotel Management</title>
@@ -299,31 +300,33 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="{% static 'hotel/css/language_switcher.css' %}">
 </head>
 
 <body>
     <aside class="sidebar">
-        <div class="brand">Hotel Management</div>
-        <div class="nav-label">Workspace</div>
+        <div class="brand">{% trans "Hotel Management" %}</div>
+        <div class="nav-label">{% trans "Workspace" %}</div>
         <nav>
-            <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
-            <a class="nav-link active" href="{% url 'booking_list' %}">Bookings</a>
-            <a class="nav-link" href="{% url 'admin:index' %}">Administration</a>
+            <a class="nav-link" href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a>
+            <a class="nav-link active" href="{% url 'booking_list' %}">{% trans "Bookings" %}</a>
+            <a class="nav-link" href="{% url 'admin:index' %}">{% trans "Administration" %}</a>
         </nav>
     </aside>
 
     <div class="content">
         <header class="topbar">
             <div>
-                <strong>Bookings</strong><br>
-                <small>Reservation management</small>
+                <strong>{% trans "Bookings" %}</strong><br>
+                <small>{% trans "Reservation management" %}</small>
             </div>
 
             <div class="user-area">
+                {% include "hotel/language_switcher.html" %}
                 <strong>{{ request.user.username }}</strong>
                 <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
-                    <button class="logout" type="submit">Log out</button>
+                    <button class="logout" type="submit">{% trans "Log out" %} </button>
                 </form>
             </div>
         </header>
@@ -331,17 +334,17 @@
         <main>
             <div class="page-heading">
                 <div>
-                    <h1>Bookings</h1>
-                    <p class="subtitle">View and track your reservations.</p>
+                    <h1>{% trans "Bookings" %}</h1>
+                    <p class="subtitle">{% trans "View and track your reservations." %}</p>
                 </div>
                 <a class="button" href="{% url 'booking_create' %}">
-                    + New booking
+                    + {% trans "New booking" %}
                 </a>
             </div>
 
             <section class="panel">
                 <div class="panel-header">
-                    <h2>All reservations</h2>
+                    <h2>{% trans "All reservations" %}</h2>
                     <span class="count">{{ bookings|length }} total</span>
                 </div>
 
@@ -350,12 +353,13 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Guest</th>
-                                <th>Room</th>
-                                <th>Check-in</th>
-                                <th>Check-out</th>
-                                <th>Guests</th>
-                                <th>Status</th>
+                                <th>{% trans "Guest" %}</th>
+                                <th>{% trans "Room" %}</th>
+                                <th>{% trans "Check-in" %}</th>
+                                <th>{% trans "Check-out" %}</th>
+                                <th>{% trans "Guests" %}</th>
+                                <th>{% trans "Dietary requirements" %}</th>
+                                <th>{% trans "Status" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -372,16 +376,28 @@
                                 <td>{{ booking.check_in|date:"d M Y" }}</td>
                                 <td>{{ booking.check_out|date:"d M Y" }}</td>
                                 <td>
-                                    {{ booking.adults }} adults
-                                    {% if booking.children %}
-                                    , {{ booking.children }} children
+                                    {{ booking.adults_count }} adults
+                                    {% if booking.children_count %}
+                                    , {{ booking.children_count }} children
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if booking.dietary_requirements %}
+                                    {{ booking.dietary_requirements|join:", " }}
+                                    {% else %}
+                                    <span class="muted">—</span>
+                                    {% endif %}
+
+                                    {% if booking.allergies %}
+                                    <br>
+                                    <strong>Allergies:</strong> {{ booking.allergies }}
                                     {% endif %}
                                 </td>
                                 <td>
                                     {% if booking.status == "CONFIRMED" %}
-                                    <span class="status status-active">Active</span>
+                                    <span class="status status-active">{% trans "Active" %}</span>
                                     {% else %}
-                                    <span class="status status-cancelled">Cancelled</span>
+                                    <span class="status status-cancelled">{% trans "Cancelled" %} </span>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -391,8 +407,8 @@
                 </div>
                 {% else %}
                 <div class="empty">
-                    <h3>No bookings yet</h3>
-                    <p>Create your first reservation to see it here.</p>
+                    <h3>{% trans "No bookings yet" %}</h3>
+                    <p>{% trans "Create your first reservation to see it here." %}</p>
                 </div>
                 {% endif %}
             </section>

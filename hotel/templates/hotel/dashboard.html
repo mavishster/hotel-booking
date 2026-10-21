@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
 
 <head>
+    {% load static i18n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard | Hotel Management</title>
+    <title>{% trans "Dashboard" %} | {% trans "Hotel Management" %}</title>
     <style>
         :root {
             --bg: #f5f7fb;
@@ -234,6 +235,31 @@
             background: #f0f3ff;
         }
 
+        .calendar-panel { margin-top: 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+        .calendar-toolbar { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:20px 22px; border-bottom:1px solid var(--border); }
+        .calendar-toolbar h2 { margin:0; font-size:19px; }
+        .month-nav { display:flex; align-items:center; gap:10px; }
+        .month-nav a, .calendar-add { color:var(--primary); text-decoration:none; font-weight:600; }
+        .calendar-scroll { overflow:auto; }
+        .calendar { min-width:980px; width:100%; border-collapse:collapse; table-layout:fixed; }
+        .calendar th, .calendar td { border-right:1px solid var(--border); border-bottom:1px solid var(--border); text-align:center; }
+        .calendar th { padding:10px 4px; background:#fafbfc; color:var(--muted); font-size:12px; }
+        .calendar th:first-child, .calendar td:first-child { width:125px; text-align:left; position:sticky; left:0; z-index:1; background:#fff; }
+        .calendar td:first-child { padding:10px 12px; font-weight:700; }
+        .calendar td { height:58px; padding:4px; }
+        .calendar .outside { background:#f8fafc; color:#aab2c0; }
+        .calendar .today { box-shadow:inset 0 0 0 2px #4263eb; }
+        .day-link { display:grid; place-items:center; width:100%; height:100%; min-height:48px; color:#667085; text-decoration:none; border-radius:6px; font-size:12px; }
+        .day-link:hover { background:#f0f3ff; }
+        .booking-chip { display:block; width:100%; padding:6px 3px; border-radius:6px; color:#175cd3; background:#eff8ff; text-decoration:none; font-size:11px; line-height:1.25; overflow:hidden; }
+        .booking-chip.tentative { color:#93370d; background:#fffaeb; }
+        .booking-chip.checked { color:#067647; background:#ecfdf3; }
+        .booking-chip + .booking-chip { margin-top:3px; }
+        .calendar-legend { display:flex; gap:16px; flex-wrap:wrap; padding:12px 20px; color:var(--muted); font-size:12px; }
+        .legend-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; background:#84caff; }
+        .legend-dot.free { background:#d0d5dd; }
+        .legend-dot.tentative { background:#fec84b; }
+
         @media (max-width: 1100px) {
             .stats {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -306,43 +332,48 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="{% static 'hotel/css/language_switcher.css' %}">
 </head>
 
 <body>
     <div class="layout">
         <aside class="sidebar">
-            <div class="brand">Hotel Management</div>
+            <div class="brand">{% trans "Hotel Management" %}</div>
 
-            <div class="nav-label">Workspace</div>
+            <div class="nav-label">{% trans "Workspace" %}</div>
             <nav>
-                <a class="nav-link active" href="{% url 'dashboard' %}">Dashboard</a>
-                <a class="nav-link" href="{% url 'admin:index' %}">Administration</a>
+                <a class="nav-link active" href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a>
+                <a class="nav-link" href="{% url 'booking_list' %}">{% trans "Bookings" %}</a>
+                <a class="nav-link" href="{% url 'admin:index' %}">{% trans "Administration" %}</a>
             </nav>
         </aside>
 
         <div class="content">
             <header class="topbar">
                 <div>
-                    <strong>Overview</strong><br>
-                    <small>Hotel operations</small>
+                    <strong>{% trans "Overview" %}</strong><br>
+                    <small>{% trans "Hotel operations" %}</small>
                 </div>
 
+
                 <div class="user-area">
+                    {% include "hotel/language_switcher.html" %}
                     <div class="avatar">{{ request.user.username|first|upper }}</div>
                     <strong class="user-name">{{ request.user.username }}</strong>
 
                     <form method="post" action="{% url 'logout' %}">
                         {% csrf_token %}
-                        <button class="logout" type="submit">Log out</button>
+                        <button class="logout" type="submit">{% trans "Log out" %}</button>
                     </form>
                 </div>
             </header>
 
             <main>
+
                 <div class="page-heading">
                     <div>
-                        <h1>Dashboard</h1>
-                        <p class="subtitle">Here's what's happening at your hotel.</p>
+                        <h1>{% trans "Dashboard" %}</h1>
+                        <p class="subtitle">{% trans "Here's what's happening at your hotel." %}</p>
                     </div>
                     <div class="date-label">{% now "j F Y" %}</div>
                 </div>
@@ -350,37 +381,76 @@
                 <section class="stats">
                     <article class="card">
                         <div class="card-indicator"></div>
-                        <p class="card-label">Active bookings</p>
+                        <p class="card-label">{% trans "Active bookings" %}</p>
                         <p class="card-value">{{ active_bookings }}</p>
-                        <p class="card-note">Current active reservations</p>
+                        <p class="card-note">{% trans "Current active reservations" %}</p>
                     </article>
 
                     <article class="card">
                         <div class="card-indicator"></div>
-                        <p class="card-label">Active rooms</p>
+                        <p class="card-label">{% trans "Active rooms" %}</p>
                         <p class="card-value">{{ active_rooms }}</p>
-                        <p class="card-note">Rooms enabled for use</p>
+                        <p class="card-note">{% trans "Rooms enabled for use" %}</p>
                     </article>
 
                     <article class="card">
                         <div class="card-indicator"></div>
-                        <p class="card-label">Arrivals today</p>
+                        <p class="card-label">{% trans "Arrivals today" %}</p>
                         <p class="card-value">{{ arrivals_today }}</p>
-                        <p class="card-note">Bookings starting today</p>
+                        <p class="card-note">{% trans "Bookings starting today" %}</p>
                     </article>
 
                     <article class="card">
                         <div class="card-indicator"></div>
-                        <p class="card-label">Departures today</p>
+                        <p class="card-label">{% trans "Departures today" %}</p>
                         <p class="card-value">{{ departures_today }}</p>
-                        <p class="card-note">Bookings ending today</p>
+                        <p class="card-note">{% trans "Bookings ending today" %}</p>
                     </article>
                 </section>
 
+                <section class="calendar-panel" aria-label="{% trans 'Booking calendar' %}">
+                    <div class="calendar-toolbar">
+                        <div>
+                            <h2>{% trans "Booking calendar" %}</h2>
+                            <small>{% trans "Room occupancy by day" %}</small>
+                        </div>
+                        <div class="month-nav">
+                            <a href="?month={{ calendar_previous.month }}&year={{ calendar_previous.year }}" aria-label="{% trans 'Previous month' %}">‹</a>
+                            <strong>{{ calendar_month|date:"F Y" }}</strong>
+                            <a href="?month={{ calendar_next.month }}&year={{ calendar_next.year }}" aria-label="{% trans 'Next month' %}">›</a>
+                        </div>
+                        <a class="calendar-add" href="{% url 'booking_create' %}">+ {% trans "New booking" %}</a>
+                    </div>
+                    {% if calendar_rows %}
+                    <div class="calendar-scroll">
+                        <table class="calendar">
+                            <thead><tr><th>{% trans "Room" %}</th>{% for day in calendar_days %}<th class="{% if day.month != calendar_month.month %}outside{% endif %} {% if day == calendar_today %}today{% endif %}">{{ day|date:"D" }}<br>{{ day|date:"j" }}</th>{% endfor %}</tr></thead>
+                            <tbody>
+                            {% for row in calendar_rows %}
+                                <tr><td>{{ row.room.number }}<br><small>{{ row.room.room_type.name }}</small></td>
+                                {% for cell in row.cells %}
+                                    <td class="{% if cell.day.month != calendar_month.month %}outside{% endif %} {% if cell.day == calendar_today %}today{% endif %}">
+                                    {% if cell.bookings %}
+                                        {% for booking in cell.bookings %}
+                                        <a class="booking-chip {% if booking.status == 'TENTATIVE' %}tentative{% elif booking.status == 'CHECKED_IN' %}checked{% endif %}" href="{% url 'booking_detail' booking.id %}" title="{{ booking.guest_name|default:'Guest' }} · {{ booking.get_status_display }}">{{ booking.guest_name|default:"Guest" }}{% if booking.booking_mode == 'BED' %}<br>{% trans "Bed" %}{% endif %}</a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <a class="day-link" href="{% url 'booking_create' %}?room={{ row.room.id }}&check_in={{ cell.day|date:'Y-m-d' }}&check_out={{ cell.day|date:'Y-m-d' }}" aria-label="{% trans 'Add booking' %} {{ row.room.number }} {{ cell.day|date:'Y-m-d' }}">+</a>
+                                    {% endif %}
+                                    </td>
+                                {% endfor %}</tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}<p style="padding:24px;color:var(--muted)">{% trans "Add active rooms to see availability." %}</p>{% endif %}
+                    <div class="calendar-legend"><span><i class="legend-dot free"></i>{% trans "Free" %}</span><span><i class="legend-dot"></i>{% trans "Booked" %}</span><span><i class="legend-dot tentative"></i>{% trans "Tentative" %}</span><span>{% trans "Check-out day is available" %}</span></div>
+                </section>
+
                 <section class="section">
-                    <h2>Quick access</h2>
+                    <h2>{% trans "Quick access" %}</h2>
                     <div class="quick-links">
-                        <a class="quick-link" href="{% url 'admin:index' %}">Manage hotel data</a>
+                        <a class="quick-link" href="{% url 'admin:index' %}">{% trans "Manage hotel data" %}</a>
                     </div>
                 </section>
             </main>

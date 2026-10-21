@@ -1,0 +1,341 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-20 17:07+0600\n"
+"PO-Revision-Date: 2026-10-20 15:43+0600\n"
+"Last-Translator: \n"
+"Language-Team: Russian\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+
+#: config/settings.py:106
+msgid "Русский"
+msgstr "Русский"
+
+#: config/settings.py:107
+msgid "English"
+msgstr "Английский"
+
+#: hotel/forms.py:42
+msgid "Vegetarian"
+msgstr "Вегетарианское"
+
+#: hotel/forms.py:43
+msgid "Vegan"
+msgstr "Веганское"
+
+#: hotel/forms.py:44
+msgid "Halal"
+msgstr "Халяль"
+
+#: hotel/forms.py:45
+msgid "Gluten-free"
+msgstr "Без глютена"
+
+#: hotel/forms.py:46
+msgid "Lactose-free"
+msgstr "Без лактозы"
+
+#: hotel/forms.py:47
+msgid "No pork"
+msgstr "Без свинины"
+
+#: hotel/forms.py:48 hotel/models.py:236
+msgid "Other"
+msgstr "Другое"
+
+#: hotel/forms.py:52 hotel/templates/hotel/booking_form.html:320
+#: hotel/templates/hotel/booking_list.html:361
+msgid "Dietary requirements"
+msgstr "Особенности питания"
+
+#: hotel/models.py:55 hotel/models.py:219
+msgid "Individual beds"
+msgstr "Отдельные кровати"
+
+#: hotel/models.py:56 hotel/models.py:220
+msgid "Entire unit"
+msgstr "Глэмпинг целиком"
+
+#: hotel/models.py:223
+msgid "Tentative"
+msgstr "Предварительное"
+
+#: hotel/models.py:224
+msgid "Confirmed"
+msgstr "Подтверждено"
+
+#: hotel/models.py:225
+msgid "Checked in"
+msgstr "Гость заселился"
+
+#: hotel/models.py:226
+msgid "Checked out"
+msgstr "Гость выехал"
+
+#: hotel/models.py:227 hotel/templates/hotel/booking_list.html:400
+msgid "Cancelled"
+msgstr "Отменено"
+
+#: hotel/models.py:228
+msgid "No-show"
+msgstr "Неявка"
+
+#: hotel/models.py:231 hotel/templates/hotel/booking_form.html:224
+msgid "Phone"
+msgstr "Телефон"
+
+#: hotel/models.py:232
+msgid "Walk-in"
+msgstr "Лично"
+
+#: hotel/models.py:234
+msgid "Website"
+msgstr "Сайт"
+
+#: hotel/templates/hotel/booking_form.html:8
+#: hotel/templates/hotel/booking_form.html:199
+#: hotel/templates/hotel/booking_list.html:341
+msgid "New booking"
+msgstr "Новое бронирование"
+
+#: hotel/templates/hotel/booking_form.html:200
+msgid "Create a room or individual-bed reservation."
+msgstr "Создайте бронирование комнаты или отдельного места."
+
+#: hotel/templates/hotel/booking_form.html:202
+msgid "Back"
+msgstr "Назад"
+
+#: hotel/templates/hotel/booking_form.html:216
+msgid "Guest name"
+msgstr "Имя гостя"
+
+#: hotel/templates/hotel/booking_form.html:232
+#: hotel/templates/hotel/booking_list.html:357
+msgid "Room"
+msgstr "Номер"
+
+#: hotel/templates/hotel/booking_form.html:240
+msgid "Booking type"
+msgstr "Тип бронирования"
+
+#: hotel/templates/hotel/booking_form.html:248
+#: hotel/templates/hotel/booking_list.html:358
+msgid "Check-in"
+msgstr "Заезд"
+
+#: hotel/templates/hotel/booking_form.html:256
+#: hotel/templates/hotel/booking_list.html:359
+msgid "Check-out"
+msgstr "Выезд"
+
+#: hotel/templates/hotel/booking_form.html:264
+msgid "Adults"
+msgstr "Взрослые"
+
+#: hotel/templates/hotel/booking_form.html:272
+msgid "Number of children"
+msgstr "Количество детей"
+
+#: hotel/templates/hotel/booking_form.html:280
+msgid "Age of each child"
+msgstr "Возраст каждого ребёнка"
+
+#: hotel/templates/hotel/booking_form.html:283
+#, fuzzy, python-format
+#| msgid ""
+#| "Enter the age of each child in JSON format, for example [4, 7]. The first "
+#| "child under 7 years old stays free of charge; other children up to and "
+#| "including 12 years old are charged 50% of the rate."
+msgid ""
+"Enter the age of each child in JSON format, for example [4, 7]. The first "
+"child under 7 years old stays free of charge; other children up to and "
+"including 12 years old are charged 50%% of the rate."
+msgstr ""
+"Укажите возраст каждого ребёнка в формате JSON, например [4, 7]. Первый "
+"ребёнок младше 7 лет размещается бесплатно; остальные дети до 12 лет "
+"включительно оплачиваются по тарифу 50%."
+
+#: hotel/templates/hotel/booking_form.html:296
+msgid "Breakfasts (included in the price)"
+msgstr "Завтраки (включены в стоимость)"
+
+#: hotel/templates/hotel/booking_form.html:304
+msgid "Lunches"
+msgstr "Обеды"
+
+#: hotel/templates/hotel/booking_form.html:312
+msgid "Dinners"
+msgstr "Ужины"
+
+#: hotel/templates/hotel/booking_form.html:335
+msgid "Allergies"
+msgstr "Аллергии"
+
+#: hotel/templates/hotel/booking_form.html:343
+msgid "Meal notes"
+msgstr "Примечания по питанию"
+
+#: hotel/templates/hotel/booking_form.html:351
+msgid "Select beds"
+msgstr "Выберите места"
+
+#: hotel/templates/hotel/booking_form.html:359
+msgid "No active beds available."
+msgstr "Нет доступных мест."
+
+#: hotel/templates/hotel/booking_form.html:363
+msgid ""
+"For an individual-bed booking, select one or more beds in the chosen room. "
+"For a whole-room booking, leave all beds unchecked."
+msgstr ""
+"При бронировании отдельных мест выберите одно или несколько мест в выбранном "
+"номере. При бронировании всего номера оставьте все места неотмеченными."
+
+#: hotel/templates/hotel/booking_form.html:375
+msgid "Cancel"
+msgstr "Отмена"
+
+#: hotel/templates/hotel/booking_form.html:376
+msgid "Create booking"
+msgstr "Создать бронирование"
+
+#: hotel/templates/hotel/booking_list.html:308
+#: hotel/templates/hotel/dashboard.html:8
+#: hotel/templates/hotel/dashboard.html:316
+msgid "Hotel Management"
+msgstr "Управление отелем"
+
+#: hotel/templates/hotel/booking_list.html:309
+#: hotel/templates/hotel/dashboard.html:318
+msgid "Workspace"
+msgstr "Рабочая область"
+
+#: hotel/templates/hotel/booking_list.html:311
+#: hotel/templates/hotel/dashboard.html:8
+#: hotel/templates/hotel/dashboard.html:320
+#: hotel/templates/hotel/dashboard.html:350
+msgid "Dashboard"
+msgstr "Панель управления"
+
+#: hotel/templates/hotel/booking_list.html:312
+#: hotel/templates/hotel/booking_list.html:320
+#: hotel/templates/hotel/booking_list.html:337
+#: hotel/templates/hotel/dashboard.html:321
+msgid "Bookings"
+msgstr "Бронирования"
+
+#: hotel/templates/hotel/booking_list.html:313
+#: hotel/templates/hotel/dashboard.html:322
+msgid "Administration"
+msgstr "Администрирование"
+
+#: hotel/templates/hotel/booking_list.html:321
+msgid "Reservation management"
+msgstr "Управление бронированиями"
+
+#: hotel/templates/hotel/booking_list.html:329
+#: hotel/templates/hotel/dashboard.html:341
+msgid "Log out"
+msgstr "Выйти"
+
+#: hotel/templates/hotel/booking_list.html:338
+msgid "View and track your reservations."
+msgstr "Просматривайте и отслеживайте бронирования."
+
+#: hotel/templates/hotel/booking_list.html:347
+msgid "All reservations"
+msgstr "Все бронирования"
+
+#: hotel/templates/hotel/booking_list.html:356
+msgid "Guest"
+msgstr "Гость"
+
+#: hotel/templates/hotel/booking_list.html:360
+msgid "Guests"
+msgstr "Количество гостей"
+
+#: hotel/templates/hotel/booking_list.html:362
+msgid "Status"
+msgstr "Статус"
+
+#: hotel/templates/hotel/booking_list.html:398
+msgid "Active"
+msgstr "Активно"
+
+#: hotel/templates/hotel/booking_list.html:410
+msgid "No bookings yet"
+msgstr "Пока нет бронирований"
+
+#: hotel/templates/hotel/booking_list.html:411
+msgid "Create your first reservation to see it here."
+msgstr "Создайте первое бронирование, чтобы оно появилось здесь."
+
+#: hotel/templates/hotel/dashboard.html:329
+msgid "Overview"
+msgstr "Обзор"
+
+#: hotel/templates/hotel/dashboard.html:330
+msgid "Hotel operations"
+msgstr "Работа отеля"
+
+#: hotel/templates/hotel/dashboard.html:351
+msgid "Here's what's happening at your hotel."
+msgstr "Текущая информация о работе вашего отеля."
+
+#: hotel/templates/hotel/dashboard.html:359
+msgid "Active bookings"
+msgstr "Активные бронирования"
+
+#: hotel/templates/hotel/dashboard.html:361
+msgid "Current active reservations"
+msgstr "Текущие активные бронирования"
+
+#: hotel/templates/hotel/dashboard.html:366
+msgid "Active rooms"
+msgstr "Доступные номера"
+
+#: hotel/templates/hotel/dashboard.html:368
+msgid "Rooms enabled for use"
+msgstr "Номера, доступные для использования"
+
+#: hotel/templates/hotel/dashboard.html:373
+msgid "Arrivals today"
+msgstr "Заезды сегодня"
+
+#: hotel/templates/hotel/dashboard.html:375
+msgid "Bookings starting today"
+msgstr "Бронирования с заездом сегодня"
+
+#: hotel/templates/hotel/dashboard.html:380
+msgid "Departures today"
+msgstr "Выезды сегодня"
+
+#: hotel/templates/hotel/dashboard.html:382
+msgid "Bookings ending today"
+msgstr "Бронирования с выездом сегодня"
+
+#: hotel/templates/hotel/dashboard.html:387
+msgid "Quick access"
+msgstr "Быстрый доступ"
+
+#: hotel/templates/hotel/dashboard.html:389
+msgid "Manage hotel data"
+msgstr "Управление данными отеля"
+
+#~ msgid "Entire glamping unit"
+#~ msgstr "Комната целиком"
+
+msgid "Select an option"
+msgstr "Выберите вариант"

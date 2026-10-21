@@ -1,4 +1,7 @@
 
+import calendar
+from datetime import date, timedelta
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
@@ -6,7 +9,7 @@ from django.utils import timezone
 
 from .models import Booking, Room
 from django.contrib import messages
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import BookingForm
 
@@ -25,6 +28,51 @@ class StaffLogoutView(LogoutView):
 def dashboard(request):
     today = timezone.localdate()
 
+    try:
+        month = int(request.GET.get("month", today.month))
+        year = int(request.GET.get("year", today.year))
+        first_day = date(year, month, 1)
+    except (TypeError, ValueError):
+        first_day = today.replace(day=1)
+        year, month = first_day.year, first_day.month
+
+    month_grid_start = first_day - timedelta(days=first_day.weekday())
+    last_day = date(year, month, calendar.monthrange(year, month)[1])
+    month_grid_end = last_day + timedelta(days=(6 - last_day.weekday()))
+    days = [
+        month_grid_start + timedelta(days=offset)
+        for offset in range((month_grid_end - month_grid_start).days + 1)
+    ]
+    rooms = list(Room.objects.filter(is_active=True).select_related("room_type").order_by("number"))
+    bookings = (
+        Booking.objects.filter(
+            room__in=rooms,
+            check_in__lte=month_grid_end,
+            check_out__gt=month_grid_start,
+        )
+        .exclude(status__in=[Booking.Status.CANCELLED, Booking.Status.NO_SHOW])
+        .select_related("room")
+        .prefetch_related("beds")
+        .order_by("check_in")
+    )
+    bookings_by_room = {room.id: [] for room in rooms}
+    for booking in bookings:
+        bookings_by_room[booking.room_id].append(booking)
+
+    calendar_rows = []
+    for room in rooms:
+        cells = []
+        for day in days:
+            day_bookings = [
+                booking for booking in bookings_by_room[room.id]
+                if booking.check_in <= day < booking.check_out
+            ]
+            cells.append({"day": day, "bookings": day_bookings})
+        calendar_rows.append({"room": room, "cells": cells})
+
+    previous_month = first_day - timedelta(days=1)
+    next_month = last_day + timedelta(days=1)
+
     context = {
         "active_bookings": Booking.objects.filter(
             status=Booking.Status.CONFIRMED,
@@ -38,6 +86,12 @@ def dashboard(request):
             status=Booking.Status.CONFIRMED,
             check_out=today,
         ).count(),
+        "calendar_days": days,
+        "calendar_rows": calendar_rows,
+        "calendar_month": first_day,
+        "calendar_previous": previous_month,
+        "calendar_next": next_month,
+        "calendar_today": today,
     }
 
     return render(request, "hotel/dashboard.html", context)
@@ -83,11 +137,55 @@ def booking_create(request):
                     f"Стоимость: {booking.total_price} KGS.",
                 )
                 return redirect("booking_list")
+       
+
     else:
-        form = BookingForm()
+        initial = {}
+        for field in ("room", "check_in", "check_out"):
+            if request.GET.get(field):
+                initial[field] = request.GET[field]
+        form = BookingForm(initial=initial)
 
     return render(
         request,
         "hotel/booking_form.html",
         {"form": form},
+    )
+
+
+@login_required
+def booking_detail(request, booking_id):
+    booking = (
+        Booking.objects.select_related("room")
+        .prefetch_related("beds")
+        .get(pk=booking_id)
+    )
+    return render(request, "hotel/booking_detail.html", {"booking": booking})
+
+
+@login_required
+def booking_edit(request, booking_id):
+    booking = get_object_or_404(Booking.objects.prefetch_related("beds"), pk=booking_id)
+    if request.method == "POST":
+        form = BookingForm(request.POST, instance=booking)
+        if form.is_valid():
+            updated_booking = form.save(commit=False)
+            try:
+                updated_booking.total_price = calculate_booking_total(
+                    updated_booking,
+                    beds_count=form.cleaned_data["beds"].count(),
+                )
+            except ValueError as error:
+                form.add_error(None, str(error))
+            else:
+                updated_booking.save()
+                form.save_m2m()
+                messages.success(request, "Бронирование обновлено.")
+                return redirect("booking_detail", booking_id=booking.pk)
+    else:
+        form = BookingForm(instance=booking)
+    return render(
+        request,
+        "hotel/booking_form.html",
+        {"form": form, "booking": booking},
     )

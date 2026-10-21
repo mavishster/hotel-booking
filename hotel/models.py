@@ -1,6 +1,7 @@
 
 from django.db import models
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 class RoomType(models.Model):
     name = models.CharField(max_length=100)
@@ -51,8 +52,8 @@ class Bed(models.Model):
 
 class RatePlan(models.Model):
     class BookingMode(models.TextChoices):
-        BED = "BED", "Отдельное место"
-        ROOM = "ROOM", "Комната целиком"
+        BED = "BED", _("Individual beds")
+        ROOM = "ROOM", _("Entire unit")
 
     name = models.CharField(max_length=100)
     booking_mode = models.CharField(
@@ -215,24 +216,24 @@ class RateRule(models.Model):
 
 class Booking(models.Model):
     class BookingMode(models.TextChoices):
-        BED = "BED", "Отдельные кровати"
-        ROOM = "ROOM", "Glamping целиком"
+        BED = "BED", _("Individual beds")
+        ROOM = "ROOM", _("Entire unit")
 
     class Status(models.TextChoices):
-        TENTATIVE = "TENTATIVE", "Предварительное"
-        CONFIRMED = "CONFIRMED", "Подтверждено"
-        CHECKED_IN = "CHECKED_IN", "Гость заселился"
-        CHECKED_OUT = "CHECKED_OUT", "Гость выехал"
-        CANCELLED = "CANCELLED", "Отменено"
-        NO_SHOW = "NO_SHOW", "Неявка"
+        TENTATIVE = "TENTATIVE", _("Tentative")
+        CONFIRMED = "CONFIRMED", _("Confirmed")
+        CHECKED_IN = "CHECKED_IN", _("Checked in")
+        CHECKED_OUT = "CHECKED_OUT", _("Checked out")
+        CANCELLED = "CANCELLED", _("Cancelled")
+        NO_SHOW = "NO_SHOW", _("No-show")
 
     class BookingSource(models.TextChoices):
-        PHONE = "PHONE", "Телефон"
-        WALK_IN = "WALK_IN", "Лично"
+        PHONE = "PHONE", _("Phone")
+        WALK_IN = "WALK_IN", _("Walk-in")
         WHATSAPP = "WHATSAPP", "WhatsApp"
-        WEBSITE = "WEBSITE", "Сайт"
+        WEBSITE = "WEBSITE", _("Website")
         BOOKING_COM = "BOOKING_COM", "Booking.com"
-        OTHER = "OTHER", "Другое"
+        OTHER = "OTHER", _("Other")
 
     room = models.ForeignKey(
         Room,
@@ -293,7 +294,7 @@ class Booking(models.Model):
     lunch_count = models.PositiveSmallIntegerField(default=0)
     dinner_count = models.PositiveSmallIntegerField(default=0)
 
-    dietary_requirements = models.TextField(blank=True)
+    dietary_requirements = models.JSONField(default=list, blank=True)
     allergies = models.TextField(blank=True)
     meal_notes = models.TextField(blank=True)
 
