@@ -7,6 +7,7 @@ from hotel.views import (
     StaffLoginView,
     StaffLogoutView,
     booking_create,
+    booking_change_status,
     booking_detail,
     booking_edit,
     booking_list,
@@ -31,4 +32,5 @@ urlpatterns = [
     path("bookings/new/", booking_create, name="booking_create"),
     path("bookings/<int:booking_id>/", booking_detail, name="booking_detail"),
     path("bookings/<int:booking_id>/edit/", booking_edit, name="booking_edit"),
+    path("bookings/<int:booking_id>/status/", booking_change_status, name="booking_change_status"),
 ]

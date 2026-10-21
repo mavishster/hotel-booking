@@ -1,0 +1,8 @@
+Suggested development order
+1. Make availability and status handling reliable. Add transactional conflict protection for concurrent bookings, validate room/bed capacity and booking invariants consistently, and add deliberate status transitions for tentative, confirmed, checked in, checked out, cancelled, and no-show. This is the foundation for trustworthy operations.
+2. Make availability visible at the right level. Show room and bed occupancy separately, display booking status accurately, and expose occupied capacity for each date. Add filters for room type/status and a clear way to move between months.
+3. Complete the staff booking workflow. Add booking references and creator attribution on creation; support cancellation with reason and timestamp; provide edit, status, and cancellation actions; and display booking history or audit events.
+4. Add payment tracking. Provide a booking balance summary, record payments and refunds with method and comment, and show outstanding amounts. Keep payment records separate from the booking price.
+5. Improve rates and quotes. Show a price breakdown by night and surcharge, make manual price overrides explicit and auditable, and validate that relevant active rate plans are configured before staff can confirm a booking.
+6. Add operational reporting. Start with occupancy, arrivals/departures, revenue collected, outstanding balances, and booking sources. Define revenue based on actual payment entries, not just booking totals.
+7. Consider guest-facing booking later. Once availability, pricing, payments, and confirmations are dependable, add a guest booking and confirmation flow, then consider channel integrations if the business needs them.

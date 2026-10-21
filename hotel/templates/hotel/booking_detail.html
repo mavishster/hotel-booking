@@ -24,6 +24,19 @@
         <div class="item"><strong>{% trans "Booking source" %}</strong>{{ booking.get_booking_source_display }}</div>
         <div class="item"><strong>{% trans "Special requests" %}</strong>{{ booking.special_requests|default:"—" }}</div>
         <div class="item"><strong>{% trans "Internal notes" %}</strong>{{ booking.internal_notes|default:"—" }}</div>
+        <div class="item"><strong>{% trans "Created by" %}</strong>{{ booking.created_by|default:"—" }}</div>
+        {% if booking.status == "CANCELLED" %}<div class="item"><strong>{% trans "Cancellation reason" %}</strong>{{ booking.cancellation_reason|default:"—" }}</div>{% endif %}
     </div>
     <div class="actions"><a class="button" href="{% url 'booking_edit' booking.id %}">{% trans "Edit booking" %}</a><a class="button secondary" href="{% url 'booking_list' %}">{% trans "All bookings" %}</a></div>
+    {% if allowed_statuses %}
+    <form method="post" action="{% url 'booking_change_status' booking.id %}" class="actions">
+        {% csrf_token %}
+        <select name="status" required aria-label="{% trans 'Change booking status' %}">
+            <option value="">{% trans "Change status" %}</option>
+            {% for value, label in status_choices %}{% if value in allowed_statuses %}<option value="{{ value }}">{{ label }}</option>{% endif %}{% endfor %}
+        </select>
+        <input name="cancellation_reason" placeholder="{% trans 'Cancellation reason (required for cancellation)' %}">
+        <button class="button" type="submit">{% trans "Update status" %}</button>
+    </form>
+    {% endif %}
 </article></main></body></html>

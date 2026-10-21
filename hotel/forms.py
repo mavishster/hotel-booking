@@ -2,7 +2,7 @@
 from django import forms
 
 from .models import Bed, Booking, Room
-from .services import find_booking_conflicts
+from .services import validate_booking
 from django.utils.translation import gettext_lazy as _
 
 
@@ -56,6 +56,7 @@ class BookingForm(forms.ModelForm):
         required=False,
         label="Источник бронирования",
     )
+    cancellation_reason = forms.CharField(required=False, widget=forms.Textarea(attrs={"rows": 3}))
 
     class Meta:
         model = Booking
@@ -72,6 +73,8 @@ class BookingForm(forms.ModelForm):
             "children_count",
             "children_ages",
             "booking_source",
+            "status",
+            "cancellation_reason",
             "special_requests",
             "breakfast_count",
             "lunch_count",
@@ -105,63 +108,31 @@ class BookingForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-
-        room = cleaned_data.get("room")
-        booking_mode = cleaned_data.get("booking_mode")
         beds = cleaned_data.get("beds")
-        check_in = cleaned_data.get("check_in")
-        check_out = cleaned_data.get("check_out")
-
-        if room and booking_mode == Booking.BookingMode.BED:
-            if not beds:
-                self.add_error(
-                    "beds",
-                    "Select at least one bed for a bed booking.",
-                )
-            elif any(bed.room_id != room.id for bed in beds):
-                self.add_error(
-                    "beds",
-                    "All selected beds must belong to the selected room.",
-                )
-
-        if booking_mode == Booking.BookingMode.ROOM and beds:
-            self.add_error(
-                "beds",
-                "Do not select individual beds when booking the whole room.",
-            )
-
-        if (
-            room
-            and check_in
-            and check_out
-            and check_out > check_in
-            and booking_mode in (
-                Booking.BookingMode.BED,
-                Booking.BookingMode.ROOM,
-            )
-        ):
-            conflicts = find_booking_conflicts(
-                room=room,
-                booking_mode=booking_mode,
-                beds=beds if beds else [],
-                check_in=check_in,
-                check_out=check_out,
-                exclude_booking_id=self.instance.pk,
-            )
-
-            if conflicts.exists():
-                if booking_mode == Booking.BookingMode.ROOM:
-                    self.add_error(
-                        "room",
-                        "The room or one of its beds is already booked "
-                        "for these dates.",
-                    )
+        if all(cleaned_data.get(field) is not None for field in (
+            "room", "booking_mode", "check_in", "check_out", "adults_count", "children_count"
+        )):
+            candidate = self.instance
+            for field in (
+                "room", "booking_mode", "check_in", "check_out", "adults_count",
+                "children_count", "children_ages", "status",
+            ):
+                if field in cleaned_data:
+                    setattr(candidate, field, cleaned_data[field])
+            try:
+                candidate.full_clean(exclude=["beds"])
+                validate_booking(candidate, beds)
+            except forms.ValidationError as error:
+                if hasattr(error, "message_dict"):
+                    for field, errors in error.message_dict.items():
+                        if field in self.fields:
+                            for message in errors:
+                                self.add_error(field, message)
+                        else:
+                            for message in errors:
+                                self.add_error(None, message)
                 else:
-                    self.add_error(
-                        "beds",
-                        "One or more selected beds are already booked "
-                        "for these dates.",
-                    )
+                    self.add_error(None, error)
 
         return cleaned_data
 

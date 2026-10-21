@@ -1,5 +1,6 @@
 from datetime import timedelta
 from decimal import Decimal
+from django.utils import timezone
 
 from django.db import models
 
@@ -137,6 +138,90 @@ def find_booking_conflicts(
         return (room_bookings | bed_bookings).distinct()
 
     return Booking.objects.none()
+
+
+def validate_booking(booking, beds):
+    """Validate resource assignment and overlap rules for any booking form."""
+    from django.core.exceptions import ValidationError
+
+    errors = {}
+    beds = list(beds or [])
+
+    if booking.booking_mode == Booking.BookingMode.BED:
+        if not beds:
+            errors["beds"] = "Select at least one active bed for a bed booking."
+        elif any(bed.room_id != booking.room_id for bed in beds):
+            errors["beds"] = "All selected beds must belong to the selected room."
+        elif any(not bed.is_active for bed in beds):
+            errors["beds"] = "Inactive beds cannot be booked."
+        if booking.room_id and len(beds) > booking.room.room_type.capacity:
+            errors["beds"] = "The selected beds exceed this room's capacity."
+    elif booking.booking_mode == Booking.BookingMode.ROOM and beds:
+        errors["beds"] = "Do not select individual beds for a whole-room booking."
+
+    if booking.room_id and booking.booking_mode == Booking.BookingMode.ROOM:
+        if booking.adults_count and booking.children_count is not None:
+            if booking.adults_count + booking.children_count > booking.room.room_type.capacity:
+                errors["adults_count"] = "Total guests exceed the room capacity."
+
+    if (
+        booking.room_id
+        and booking.check_in
+        and booking.check_out
+        and booking.check_out > booking.check_in
+        and booking.booking_mode in (Booking.BookingMode.BED, Booking.BookingMode.ROOM)
+        and not errors.get("beds")
+    ):
+        conflicts = find_booking_conflicts(
+            room=booking.room,
+            booking_mode=booking.booking_mode,
+            beds=beds,
+            check_in=booking.check_in,
+            check_out=booking.check_out,
+            exclude_booking_id=booking.pk,
+        )
+        if conflicts.exists():
+            key = "room" if booking.booking_mode == Booking.BookingMode.ROOM else "beds"
+            errors[key] = "The room or selected beds are already booked for these dates."
+
+    if errors:
+        raise ValidationError(errors)
+
+
+def save_booking_safely(booking, beds, *, using=None):
+    """Serialize writes per room, then recheck availability inside the transaction."""
+    from django.core.exceptions import ValidationError
+    from django.db import router, transaction
+
+    database = using or router.db_for_write(Booking, instance=booking)
+    bed_ids = [bed.pk for bed in beds]
+    with transaction.atomic(using=database):
+        # A room is the shared lock for both whole-room and bed reservations.
+        room = booking.room.__class__.objects.using(database).select_for_update().get(
+            pk=booking.room_id
+        )
+        booking.room = room
+        locked_beds = list(
+            room.beds.using(database).filter(pk__in=bed_ids, is_active=True)
+        )
+        if len(locked_beds) != len(set(bed_ids)):
+            raise ValidationError({"beds": "One or more selected beds are unavailable."})
+        validate_booking(booking, locked_beds)
+        previous_status = None
+        if booking.pk:
+            previous_status = Booking.objects.using(database).filter(
+                pk=booking.pk
+            ).values_list("status", flat=True).first()
+        if (
+            booking.status == Booking.Status.CANCELLED
+            and previous_status != Booking.Status.CANCELLED
+            and not booking.cancelled_at
+        ):
+            booking.cancelled_at = timezone.now()
+        booking.full_clean(exclude=["beds"])
+        booking.save(using=database)
+        booking.beds.set(locked_beds)
+    return booking
 
 
 def calculate_booking_total(booking, beds_count=1):

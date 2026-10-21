@@ -245,6 +245,18 @@
                 </div>
 
                 <div class="field">
+                    <label for="{{ form.status.id_for_label }}">{% trans "Status" %}</label>
+                    {{ form.status }}
+                    {% for error in form.status.errors %}<div class="errors">{{ error }}</div>{% endfor %}
+                </div>
+
+                <div class="field full">
+                    <label for="{{ form.cancellation_reason.id_for_label }}">{% trans "Cancellation reason" %}</label>
+                    {{ form.cancellation_reason }}
+                    {% for error in form.cancellation_reason.errors %}<div class="errors">{{ error }}</div>{% endfor %}
+                </div>
+
+                <div class="field">
                     <label for="{{ form.check_in.id_for_label }}">{% trans "Check-in" %}</label>
                     {{ form.check_in }}
                     {% for error in form.check_in.errors %}

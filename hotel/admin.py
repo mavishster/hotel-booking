@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import path, reverse
 from .models import Bed, Booking, RatePlan, RateRule, Room, RoomType
-from .services import find_booking_conflicts
+from .services import save_booking_safely, validate_booking
 
 
 admin.site.register(RoomType)
@@ -74,60 +74,27 @@ class BookingAdminForm(forms.ModelForm):
         if not cleaned_data.get("booking_source"):
             cleaned_data["booking_source"] = Booking.BookingSource.OTHER
 
-        room = cleaned_data.get("room")
-        booking_mode = cleaned_data.get("booking_mode")
         beds = cleaned_data.get("beds")
-        check_in = cleaned_data.get("check_in")
-        check_out = cleaned_data.get("check_out")
-
-        if room and booking_mode == Booking.BookingMode.BED:
-            if not beds:
-                self.add_error(
-                    "beds",
-                    "Для бронирования отдельных кроватей выберите хотя бы одну.",
-                )
-            elif any(bed.room_id != room.id for bed in beds):
-                self.add_error(
-                    "beds",
-                    "Все выбранные кровати должны относиться к выбранной комнате.",
-                )
-
-        if booking_mode == Booking.BookingMode.ROOM and beds:
-            self.add_error(
-                "beds",
-                "При бронировании комнаты целиком отдельные кровати выбирать не нужно.",
-            )
-
-        if (
-            room
-            and check_in
-            and check_out
-            and check_out > check_in
-            and booking_mode in (
-                Booking.BookingMode.BED,
-                Booking.BookingMode.ROOM,
-            )
-        ):
-            conflicts = find_booking_conflicts(
-                room=room,
-                booking_mode=booking_mode,
-                beds=beds if beds else [],
-                check_in=check_in,
-                check_out=check_out,
-                exclude_booking_id=self.instance.pk,
-            )
-
-            if conflicts.exists():
-                if booking_mode == Booking.BookingMode.ROOM:
-                    self.add_error(
-                        "room",
-                        "Помещение или одна из его кроватей уже забронированы на эти даты.",
-                    )
+        if all(cleaned_data.get(field) is not None for field in (
+            "room", "booking_mode", "check_in", "check_out", "adults_count", "children_count"
+        )):
+            candidate = self.instance
+            for field in (
+                "room", "booking_mode", "check_in", "check_out", "adults_count",
+                "children_count", "children_ages", "status",
+            ):
+                if field in cleaned_data:
+                    setattr(candidate, field, cleaned_data[field])
+            try:
+                candidate.full_clean(exclude=["beds"])
+                validate_booking(candidate, beds)
+            except forms.ValidationError as error:
+                if hasattr(error, "message_dict"):
+                    for field, errors in error.message_dict.items():
+                        for message in errors:
+                            self.add_error(field if field in self.fields else None, message)
                 else:
-                    self.add_error(
-                        "beds",
-                        "Одна или несколько выбранных кроватей уже заняты на эти даты.",
-                    )
+                    self.add_error(None, error)
 
         return cleaned_data
 
@@ -191,3 +158,12 @@ class BookingAdmin(admin.ModelAdmin):
 
     class Media:
         js = ("hotel/admin/booking_form.js",)
+
+    def save_model(self, request, obj, form, change):
+        obj.created_by = obj.created_by or request.user
+        beds = form.cleaned_data.get("beds", [])
+        save_booking_safely(obj, beds)
+
+    def save_related(self, request, form, formsets, change):
+        # BookingForm's M2M value is committed under the same room lock in save_model.
+        super().save_related(request, form, formsets, change)

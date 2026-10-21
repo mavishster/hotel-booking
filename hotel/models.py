@@ -227,6 +227,15 @@ class Booking(models.Model):
         CANCELLED = "CANCELLED", _("Cancelled")
         NO_SHOW = "NO_SHOW", _("No-show")
 
+    STATUS_TRANSITIONS = {
+        "TENTATIVE": {"CONFIRMED", "CANCELLED", "NO_SHOW"},
+        "CONFIRMED": {"CHECKED_IN", "CANCELLED", "NO_SHOW"},
+        "CHECKED_IN": {"CHECKED_OUT"},
+        "CHECKED_OUT": set(),
+        "CANCELLED": set(),
+        "NO_SHOW": set(),
+    }
+
     class BookingSource(models.TextChoices):
         PHONE = "PHONE", _("Phone")
         WALK_IN = "WALK_IN", _("Walk-in")
@@ -364,6 +373,27 @@ class Booking(models.Model):
                 "Количество возрастов должно совпадать "
                 "с количеством детей."
             )
+
+        if self.pk:
+            previous_status = type(self).objects.filter(pk=self.pk).values_list(
+                "status", flat=True
+            ).first()
+            if (
+                previous_status
+                and previous_status != self.status
+                and self.status not in self.STATUS_TRANSITIONS[previous_status]
+            ):
+                errors["status"] = "This status change is not allowed."
+
+        if self.status == self.Status.CANCELLED and not (self.cancellation_reason or "").strip():
+            if self.pk:
+                previous_reason = type(self).objects.filter(pk=self.pk).values_list(
+                    "cancellation_reason", flat=True
+                ).first()
+            else:
+                previous_reason = ""
+            if not previous_reason:
+                errors["cancellation_reason"] = "A cancellation reason is required."
      
         if errors:
             raise ValidationError(errors)
@@ -377,6 +407,23 @@ class Booking(models.Model):
             f"{self.room.number}: "
             f"{self.check_in} — {self.check_out}"
         )
+
+    def transition_to(self, new_status, *, reason=""):
+        from django.core.exceptions import ValidationError
+        from django.utils import timezone
+
+        if new_status == self.status:
+            return
+        if new_status not in self.STATUS_TRANSITIONS.get(self.status, set()):
+            raise ValidationError({"status": "This status change is not allowed."})
+        self.status = new_status
+        if new_status == self.Status.CANCELLED:
+            if not reason.strip():
+                raise ValidationError({"cancellation_reason": "A cancellation reason is required."})
+            self.cancellation_reason = reason.strip()
+            self.cancelled_at = timezone.now()
+        self.full_clean(exclude=["beds"])
+        self.save()
 
 class Payment(models.Model):
     class TransactionType(models.TextChoices):

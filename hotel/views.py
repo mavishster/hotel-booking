@@ -10,10 +10,11 @@ from django.utils import timezone
 from .models import Booking, Room
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
+from django.core.exceptions import ValidationError
 
 from .forms import BookingForm
 
-from .services import calculate_booking_total
+from .services import calculate_booking_total, save_booking_safely
 
 class StaffLoginView(LoginView):
     template_name = "hotel/login.html"
@@ -128,15 +129,21 @@ def booking_create(request):
             except ValueError as error:
                 form.add_error(None, str(error))
             else:
-                booking.save()
-                form.save_m2m()
+                booking.created_by = request.user
+                try:
+                    save_booking_safely(booking, form.cleaned_data["beds"])
+                except ValidationError as error:
+                    for field, errors in getattr(error, "message_dict", {}).items():
+                        for message in errors:
+                            form.add_error(field if field in form.fields else None, message)
+                else:
 
-                messages.success(
-                    request,
-                    f"Бронирование для {booking.guest_name or 'гостя'} создано. "
-                    f"Стоимость: {booking.total_price} KGS.",
-                )
-                return redirect("booking_list")
+                    messages.success(
+                        request,
+                        f"Бронирование для {booking.guest_name or 'гостя'} создано. "
+                        f"Стоимость: {booking.total_price} KGS.",
+                    )
+                    return redirect("booking_list")
        
 
     else:
@@ -160,7 +167,35 @@ def booking_detail(request, booking_id):
         .prefetch_related("beds")
         .get(pk=booking_id)
     )
-    return render(request, "hotel/booking_detail.html", {"booking": booking})
+    return render(request, "hotel/booking_detail.html", {
+        "booking": booking,
+        "allowed_statuses": booking.STATUS_TRANSITIONS.get(booking.status, set()),
+        "status_choices": Booking.Status.choices,
+    })
+
+
+@login_required
+def booking_change_status(request, booking_id):
+    booking = get_object_or_404(Booking, pk=booking_id)
+    if request.method == "POST":
+        new_status = request.POST.get("status")
+        reason = request.POST.get("cancellation_reason", "")
+        try:
+            from django.db import transaction
+            with transaction.atomic():
+                locked_booking = Booking.objects.select_for_update().get(pk=booking.pk)
+                booking.refresh_from_db()
+                if booking.status != locked_booking.status:
+                    booking = locked_booking
+                booking.transition_to(new_status, reason=reason)
+        except ValidationError as error:
+            for message in error.messages:
+                messages.error(request, message)
+        else:
+            messages.success(request, "Booking status updated.")
+    else:
+        return redirect("booking_detail", booking_id=booking.pk)
+    return redirect("booking_detail", booking_id=booking.pk)
 
 
 @login_required
@@ -178,10 +213,15 @@ def booking_edit(request, booking_id):
             except ValueError as error:
                 form.add_error(None, str(error))
             else:
-                updated_booking.save()
-                form.save_m2m()
-                messages.success(request, "Бронирование обновлено.")
-                return redirect("booking_detail", booking_id=booking.pk)
+                try:
+                    save_booking_safely(updated_booking, form.cleaned_data["beds"])
+                except ValidationError as error:
+                    for field, errors in getattr(error, "message_dict", {}).items():
+                        for message in errors:
+                            form.add_error(field if field in form.fields else None, message)
+                else:
+                    messages.success(request, "Бронирование обновлено.")
+                    return redirect("booking_detail", booking_id=booking.pk)
     else:
         form = BookingForm(instance=booking)
     return render(
