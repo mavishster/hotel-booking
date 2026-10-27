@@ -84,8 +84,8 @@ class BookingForm(forms.ModelForm):
             "meal_notes",
         ]
         widgets = {
-            "check_in": forms.DateInput(attrs={"type": "date"}),
-            "check_out": forms.DateInput(attrs={"type": "date"}),
+            "check_in": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
+            "check_out": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -120,7 +120,6 @@ class BookingForm(forms.ModelForm):
                 if field in cleaned_data:
                     setattr(candidate, field, cleaned_data[field])
             try:
-                candidate.full_clean(exclude=["beds"])
                 validate_booking(candidate, beds)
             except forms.ValidationError as error:
                 if hasattr(error, "message_dict"):

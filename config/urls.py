@@ -12,6 +12,7 @@ from hotel.views import (
     booking_edit,
     booking_list,
     dashboard,
+    reports,
 )
 
 urlpatterns = [
@@ -21,6 +22,7 @@ urlpatterns = [
     path("logout/", StaffLogoutView.as_view(), name="logout"),
     path("dashboard/", dashboard, name="dashboard"),
     path("bookings/", booking_list, name="booking_list"),
+    path("reports/", reports, name="reports"),
     path(
         "",
         RedirectView.as_view(

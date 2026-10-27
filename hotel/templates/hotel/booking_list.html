@@ -223,14 +223,38 @@
             font-weight: 600;
         }
 
-        .status-active {
+        .status-confirmed,
+        .status-checked-in {
             color: var(--green);
             background: var(--green-bg);
         }
 
-        .status-cancelled {
+        .status-cancelled,
+        .status-no-show {
             color: var(--red);
             background: var(--red-bg);
+        }
+
+        .status-tentative {
+            color: #93370d;
+            background: #fffaeb;
+        }
+
+        .status-checked-out {
+            color: #344054;
+            background: #f2f4f7;
+        }
+
+        .action-link {
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .action-link:hover {
+            text-decoration: underline;
         }
 
         .empty {
@@ -310,6 +334,7 @@
         <nav>
             <a class="nav-link" href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a>
             <a class="nav-link active" href="{% url 'booking_list' %}">{% trans "Bookings" %}</a>
+            <a class="nav-link" href="{% url 'reports' %}">{% trans "Reports" %}</a>
             <a class="nav-link" href="{% url 'admin:index' %}">{% trans "Administration" %}</a>
         </nav>
     </aside>
@@ -360,6 +385,7 @@
                                 <th>{% trans "Guests" %}</th>
                                 <th>{% trans "Dietary requirements" %}</th>
                                 <th>{% trans "Status" %}</th>
+                                <th>{% trans "Actions" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -394,11 +420,10 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if booking.status == "CONFIRMED" %}
-                                    <span class="status status-active">{% trans "Active" %}</span>
-                                    {% else %}
-                                    <span class="status status-cancelled">{% trans "Cancelled" %} </span>
-                                    {% endif %}
+                                    <span class="status {% if booking.status == 'TENTATIVE' %}status-tentative{% elif booking.status == 'CONFIRMED' %}status-confirmed{% elif booking.status == 'CHECKED_IN' %}status-checked-in{% elif booking.status == 'CHECKED_OUT' %}status-checked-out{% elif booking.status == 'NO_SHOW' %}status-no-show{% else %}status-cancelled{% endif %}">{{ booking.get_status_display }}</span>
+                                </td>
+                                <td>
+                                    <a class="action-link" href="{% url 'booking_edit' booking.id %}">{% trans "Edit booking" %}</a>
                                 </td>
                             </tr>
                             {% endfor %}

@@ -339,3 +339,102 @@ msgstr "Управление данными отеля"
 
 msgid "Select an option"
 msgstr "Выберите вариант"
+
+msgid "Reports"
+msgstr "Отчёты"
+
+msgid "Hotel business performance"
+msgstr "Эффективность работы отеля"
+
+msgid "Understand revenue, room occupancy, and booking trends."
+msgstr "Анализируйте доход, загрузку номеров и динамику бронирований."
+
+msgid "From"
+msgstr "С"
+
+msgid "To"
+msgstr "По"
+
+msgid "Apply dates"
+msgstr "Применить"
+
+msgid "Choose a date range of up to 90 days."
+msgstr "Выберите период не более 90 дней."
+
+msgid "Net payments collected"
+msgstr "Получено за вычетом возвратов"
+
+msgid "Payments minus refunds recorded during this period"
+msgstr "Платежи за вычетом возвратов, оформленных за этот период"
+
+msgid "Booked revenue"
+msgstr "Доход по бронированиям"
+
+msgid "Booking value for confirmed stays starting in this period"
+msgstr "Стоимость подтверждённых бронирований с заездом в этот период"
+
+msgid "Stays with check-in dates in this period"
+msgstr "Заезды, запланированные на этот период"
+
+msgid "Inventory occupancy"
+msgstr "Загрузка мест"
+
+msgid "{{ occupied }} of {{ available }} inventory unit-nights occupied"
+msgstr "Занято {{ occupied }} из {{ available }} место-ночей"
+
+msgid "Daily cash flow"
+msgstr "Ежедневный денежный поток"
+
+msgid "Net payments recorded per day"
+msgstr "Чистая сумма платежей за день"
+
+msgid "Daily payments and refunds chart"
+msgstr "Диаграмма платежей и возвратов по дням"
+
+msgid "Payments"
+msgstr "Платежи"
+
+msgid "Net refunds"
+msgstr "Возвраты"
+
+msgid "Occupancy by room"
+msgstr "Загрузка по номерам"
+
+msgid "Bed bookings count selected beds; whole-room bookings count all active beds."
+msgstr "При бронировании мест учитываются выбранные места, а при бронировании номера — все действующие места."
+
+msgid "unit-nights"
+msgstr "место-ночей"
+
+msgid "No active rooms to report."
+msgstr "Нет действующих номеров для отчёта."
+
+msgid "Bookings by status"
+msgstr "Бронирования по статусу"
+
+msgid "Check-in date falls in the selected period"
+msgstr "Дата заезда входит в выбранный период"
+
+msgid "Bookings by source"
+msgstr "Бронирования по источнику"
+
+msgid "Channels bringing guests to your hotel"
+msgstr "Каналы привлечения гостей в отель"
+
+msgid "No bookings in this period."
+msgstr "За этот период бронирований нет."
+
+msgid "Choose a date range of 90 days or less."
+msgstr "Выберите период не более 90 дней."
+
+msgid "Enter valid start and end dates."
+msgstr "Укажите корректные даты начала и окончания."
+
+msgid "The end date must be on or after the start date."
+msgstr "Дата окончания должна быть не раньше даты начала."
+
+msgid "Actions"
+msgstr "Действия"
+
+msgid "Edit booking"
+msgstr "Редактировать бронирование"
